@@ -70,8 +70,8 @@ def main_loop():
         char_rect = char.get_rect()
         x = screenWidth/2
         y = screenHeight/2
-        width = 128
-        height = 188
+        width = 61 
+        height = 63
         vel = 10
 
         run = True
