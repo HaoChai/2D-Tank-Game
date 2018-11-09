@@ -5,7 +5,7 @@ screenWidth = 1080
 screenHeight = 900
 largeText = pygame.font.Font('freesansbold.ttf', 115)
 smallText = pygame.font.Font("freesansbold.ttf", 20)
-
+positions = [1, 2, 3, 4]
 win = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("2D Tank Game")
 
@@ -23,6 +23,7 @@ def green_button(message, x, y, width, height):
                 pygame.draw.rect(win, (0, 255, 0), (x, y, width, height))
                 if click[0] == 1:
                         main_loop()
+                        pygame.quit()
         else:
                 pygame.draw.rect(win, (0, 200, 0), (x, y, width, height))
         t_surface, t_rect = text_objects(message, smallText)
@@ -70,6 +71,8 @@ def main_loop():
         char_rect = char.get_rect()
         x = screenWidth/2
         y = screenHeight/2
+        prev_char_pos = 1
+        cur_char_pos = 1
         width = 61 
         height = 63
         vel = 10
@@ -88,14 +91,48 @@ def main_loop():
                 # work well with anything small than 90 degrees.
                 if keys[pygame.K_a] and x > 0:
                         char = pygame.transform.rotate(char, 90)
+                        if prev_char_pos == 1:
+                                cur_char_pos = 4
+                        if prev_char_pos == 2:
+                                cur_char_pos = 1
+                        if prev_char_pos == 3:
+                                cur_char_pos = 2
+                        if prev_char_pos == 4:
+                                cur_char_pos = 3
+                        prev_char_pos = cur_char_pos
                 if keys[pygame.K_d] and x < screenWidth - width:
                         char = pygame.transform.rotate(char, 270)
+                        if prev_char_pos == 1:
+                                cur_char_pos = 2
+                        if prev_char_pos == 2:
+                                cur_char_pos = 3
+        
+                        if prev_char_pos == 3:
+                                cur_char_pos = 4
+                                
+                        if prev_char_pos == 4:
+                                cur_char_pos = 1
+                                
+                        prev_char_pos = cur_char_pos
                 # also need to change what forward and backwards modify when rotated
                 if keys[pygame.K_w] and y > 0:
-                        y -= vel
+                        if cur_char_pos == 1:        
+                                y -= vel
+                        if cur_char_pos == 2:
+                                x += vel
+                        if cur_char_pos == 3:
+                                y += vel
+                        if cur_char_pos == 4:
+                                x -= vel
                 if keys[pygame.K_s] and y < screenHeight - height:
-                        y += vel
-
+                        if cur_char_pos == 1:
+                                y += vel
+                        if cur_char_pos == 2:
+                                x -= vel
+                        if cur_char_pos == 3:
+                                y -= vel
+                        if cur_char_pos == 4:
+                                x += vel
                 #get rid of win.fill when background line is added
                 win.fill((0,0,0))
                 #background needs to be updated here, after its set at the top
