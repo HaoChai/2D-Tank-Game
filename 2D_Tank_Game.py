@@ -6,18 +6,18 @@ screenWidth = 900
 screenHeight = 600
 largeText = pygame.font.Font('freesansbold.ttf', 115)
 smallText = pygame.font.Font("freesansbold.ttf", 20)
-positions = [1, 2, 3, 4]
 win = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("2D Tank Game")
-boxSize = 75
+boxSize = 60
 assert screenWidth % boxSize == 0
 assert screenHeight % boxSize == 0
 boxWidth = int(screenWidth / boxSize)
 boxHeight = int(screenHeight / boxSize)
 FPS = 12
-fpsClock = pygame.time.Clock()
 width = 51
 height = 53
+player1_sprite = 'Tank_Turret.png'
+player2_sprite = 'Red_Tank_Turret.png'
 
 # colors
 BLACK = (0, 0, 0)
@@ -26,13 +26,21 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
+# positions
+UP = 1
+RIGHT = 2
+DOWN = 3
+LEFT = 4
+
 
 # reference: https://www.pygame.org/project-Rect+Collision+Response-1061-.html
-class Player:
-
-    def __init__(self):
+class Tank:
+    def __init__(self, image):
         self.rect = pygame.Rect(width, width, height, height)
-        self.rect.center = (screenWidth/2, screenHeight/2)
+        self.char = pygame.image.load(image)
+        self.vel = 10
+        self.prev_char_pos = UP
+        self.cur_char_pos = UP
 
     def move(self, x, y):
         if x != 0:
@@ -55,6 +63,56 @@ class Player:
                 if y < 0:
                     self.rect.top = wall.rect.bottom
 
+    def rotate_left(self):
+        self.char = pygame.transform.rotate(self.char, 90)
+        if self.prev_char_pos == UP:
+            self.cur_char_pos = LEFT
+        elif self.prev_char_pos == RIGHT:
+            self.cur_char_pos = UP
+        if self.prev_char_pos == DOWN:
+            self.cur_char_pos = RIGHT
+        if self.prev_char_pos == LEFT:
+            self.cur_char_pos = DOWN
+        self.prev_char_pos = self.cur_char_pos
+        pygame.time.delay(150)
+
+    def rotate_right(self):
+        self.char = pygame.transform.rotate(self.char, 270)
+        if self.prev_char_pos == UP:
+            self.cur_char_pos = RIGHT
+        if self.prev_char_pos == RIGHT:
+            self.cur_char_pos = DOWN
+        if self.prev_char_pos == DOWN:
+            self.cur_char_pos = LEFT
+        if self.prev_char_pos == LEFT:
+            self.cur_char_pos = UP
+        self.prev_char_pos = self.cur_char_pos
+        pygame.time.delay(150)
+
+    def move_up(self):
+        if self.cur_char_pos == 1:
+            self.move(0, self.vel * -1)
+        if self.cur_char_pos == 2:
+            self.move(self.vel, 0)
+        if self.cur_char_pos == 3:
+            self.move(0, self.vel)
+        if self.cur_char_pos == 4:
+            self.move(self.vel * -1, 0)
+
+    def move_down(self):
+        if self.cur_char_pos == 1:
+            self.move(0, self.vel)
+        if self.cur_char_pos == 2:
+            self.move(self.vel * -1, 0)
+        if self.cur_char_pos == 3:
+            self.move(0, self.vel * -1)
+        if self.cur_char_pos == 4:
+            self.move(self.vel, 0)
+
+    def draw_tank(self):
+        pygame.draw.rect(win, WHITE, self.rect)
+        win.blit(self.char, (self.rect.centerx - 25, self.rect.centery - 25))
+
 
 class Wall:
     def __init__(self, pos):
@@ -66,33 +124,43 @@ class Wall:
 bg = pygame.image.load("background.jpg")
 
 walls = []
-player = Player()
+player1 = Tank(player1_sprite)
+player2 = Tank(player2_sprite)
+fpsClock = pygame.time.Clock()
 
 level = [
-    "WWWWWWWWWWWW",
-    "W          W",
-    "W          W",
-    "W          W",
-    "W          W",
-    "W          W",
-    "W          W",
-    "WWWWWWWWWWWW"
+    "WWWWWWWWWWWWWWW",
+    "W             W",
+    "W             W",
+    "W             W",
+    "W1           2W",
+    "W             W",
+    "W             W",
+    "W             W",
+    "W             W",
+    "WWWWWWWWWWWWWWW"
 ]
 
 
 def main():
-    setup_wall()
+    setup_level()
     game_intro()
     main_loop()
     terminate()
 
 
-def setup_wall():
+def setup_level():
     x = y = 0
     for row in level:
         for col in row:
             if col == "W":
                 Wall((x, y))
+            if col == "1":
+                player1.rect.x = x
+                player1.rect.y = y
+            if col == "2":
+                player2.rect.x = x
+                player2.rect.y = y
             x += boxSize
         y += boxSize
         x = 0
@@ -121,30 +189,8 @@ def game_intro():
         pygame.display.update()
         fpsClock.tick(FPS)
 
-class tank():
-    def __init__(self, image, _x, _y):
-        self.char = pygame.image.load(image)
-        self.x = _x
-        self.y = _y
-        self.prev_char_pos = 1
-        self.cur_char_pos = 1
-        self.vel = 10
 
-
-# Main Loop
 def main_loop():
-    # character traits
-    # needs to be OOP-ed
-    #char = pygame.image.load('Tank_Turret.png')
-    #x = screenWidth/2
-    #y = screenHeight/2
-    #prev_char_pos = 1
-    #cur_char_pos = 1
-    #vel = 10
-
-    f_player = tank('Tank_Turret.png', screenWidth/2, screenHeight/2)
-    s_player = tank('Red_Tank_Turret.png', 50, 50)
-
     running = True
     while running:
         for event in pygame.event.get():
@@ -156,137 +202,27 @@ def main_loop():
         keys = pygame.key.get_pressed()
 
         # First Player Programming
-        if keys[pygame.K_a] and f_player.x > 0:
-            f_player.char = pygame.transform.rotate(f_player.char, 90)
-            if f_player.prev_char_pos == 1:
-                f_player.cur_char_pos = 4
-            if f_player.prev_char_pos == 2:
-                f_player.cur_char_pos = 1
-            if f_player.prev_char_pos == 3:
-                f_player.cur_char_pos = 2
-            if f_player.prev_char_pos == 4:
-                f_player.cur_char_pos = 3
-            f_player.prev_char_pos = f_player.cur_char_pos
-            pygame.time.delay(150)
-        if keys[pygame.K_d] and f_player.x < screenWidth - width:
-            f_player.char = pygame.transform.rotate(f_player.char, 270)
-            if f_player.prev_char_pos == 1:
-                f_player.cur_char_pos = 2
-            if f_player.prev_char_pos == 2:
-                f_player.cur_char_pos = 3
-            if f_player.prev_char_pos == 3:
-                f_player.cur_char_pos = 4
-            if f_player.prev_char_pos == 4:
-                f_player.cur_char_pos = 1
-
-            f_player.prev_char_pos = f_player.cur_char_pos
-            pygame.time.delay(150)
+        if keys[pygame.K_a]:
+            player1.rotate_left()
+        if keys[pygame.K_d]:
+            player1.rotate_right()
         # also need to change what forward and backwards modify when rotated
         if keys[pygame.K_w]:
-            if f_player.cur_char_pos == 1:
-                f_player.y -= f_player.vel
-                player.move(0, f_player.vel * -1)
-            if f_player.cur_char_pos == 2:
-                f_player.x += f_player.vel
-                player.move(f_player.vel, 0)
-            if f_player.cur_char_pos == 3:
-                f_player.y += f_player.vel
-                player.move(0, f_player.vel)
-            if f_player.cur_char_pos == 4:
-                f_player.x -= f_player.vel
-                player.move(f_player.vel * -1, 0)
+            player1.move_up()
         if keys[pygame.K_s]:
-            if f_player.cur_char_pos == 1:
-                f_player.y += f_player.vel
-                player.move(0, f_player.vel)
-            if f_player.cur_char_pos == 2:
-                f_player.x -= f_player.vel
-                player.move(f_player.vel * -1, 0)
-            if f_player.cur_char_pos == 3:
-                f_player.y -= f_player.vel
-                player.move(0, f_player.vel * -1)
-            if f_player.cur_char_pos == 4:
-                f_player.x += f_player.vel
-                player.move(f_player.vel, 0)
-
-        # check for screen bound in case wall collision doesn't work
-        if f_player.x <= -10:
-            f_player.x = 0
-        if f_player.y <= -10:
-            f_player.y = 0
-        if f_player.x >= screenWidth - width:
-            f_player.x = screenWidth - width
-        if f_player.y >= screenHeight - height:
-           f_player.y = screenHeight - height
-
-        # end first player programming
+            player1.move_down()
 
         # second player programming
-
-        if keys[pygame.K_LEFT] and s_player.x > 0:
-            s_player.char = pygame.transform.rotate(s_player.char, 90)
-            if s_player.prev_char_pos == 1:
-                s_player.cur_char_pos = 4
-            if s_player.prev_char_pos == 2:
-                s_player.cur_char_pos = 1
-            if s_player.prev_char_pos == 3:
-                s_player.cur_char_pos = 2
-            if s_player.prev_char_pos == 4:
-                s_player.cur_char_pos = 3
-            s_player.prev_char_pos = s_player.cur_char_pos
-            pygame.time.delay(150)
-        if keys[pygame.K_RIGHT] and s_player.x < screenWidth - width:
-            s_player.char = pygame.transform.rotate(s_player.char, 270)
-            if s_player.prev_char_pos == 1:
-                s_player.cur_char_pos = 2
-            if s_player.prev_char_pos == 2:
-                s_player.cur_char_pos = 3
-            if s_player.prev_char_pos == 3:
-                s_player.cur_char_pos = 4
-            if s_player.prev_char_pos == 4:
-                s_player.cur_char_pos = 1
-
-            s_player.prev_char_pos = s_player.cur_char_pos
-            pygame.time.delay(150)
+        if keys[pygame.K_LEFT]:
+            player2.rotate_left()
+        if keys[pygame.K_RIGHT]:
+            player2.rotate_right()
         # also need to change what forward and backwards modify when rotated
         if keys[pygame.K_UP]:
-            if s_player.cur_char_pos == 1:
-                s_player.y -= s_player.vel
-                #player.move(0, s_player.vel * -1)
-            if s_player.cur_char_pos == 2:
-                s_player.x += s_player.vel
-                #player.move(s_player.vel, 0)
-            if s_player.cur_char_pos == 3:
-                s_player.y += s_player.vel
-                #player.move(0, s_player.vel)
-            if s_player.cur_char_pos == 4:
-                s_player.x -= s_player.vel
-                #player.move(s_player.vel * -1, 0)
+            player2.move_up()
         if keys[pygame.K_DOWN]:
-            if s_player.cur_char_pos == 1:
-                s_player.y += s_player.vel
-                #player.move(0, s_player.vel)
-            if s_player.cur_char_pos == 2:
-                s_player.x -= s_player.vel
-                #player.move(s_player.vel * -1, 0)
-            if s_player.cur_char_pos == 3:
-                s_player.y -= s_player.vel
-                #player.move(0, s_player.vel * -1)
-            if s_player.cur_char_pos == 4:
-                s_player.x += s_player.vel
-                #player.move(s_player.vel, 0)
-
-        # check for screen bound in case wall collision doesn't work
-        if s_player.x <= -10:
-            s_player.x = 0
-        if s_player.y <= -10:
-            s_player.y = 0
-        if s_player.x >= screenWidth - width:
-            s_player.x = screenWidth - width
-        if s_player.y >= screenHeight - height:
-           s_player.y = screenHeight - height
-
-        #end second player programming
+            player2.move_down()
+        # end second player programming
 
         # get rid of win.fill when background line is added
         win.fill(WHITE)
@@ -297,11 +233,9 @@ def main_loop():
         # draw walls
         for wall in walls:
             pygame.draw.rect(win, RED, wall.rect)
-        # draw hit box
-        pygame.draw.rect(win, WHITE, player.rect)
-        # draw character sprite
-        win.blit(f_player.char, (player.rect.centerx - 25, player.rect.centery - 25))
-        win.blit(s_player.char, (s_player.x, s_player.y))
+        # draw player
+        player1.draw_tank()
+        player2.draw_tank()
         pygame.display.update()
         fpsClock.tick(FPS)
 
