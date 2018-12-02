@@ -15,8 +15,8 @@ assert screenHeight % boxSize == 0
 boxWidth = int(screenWidth / boxSize)
 boxHeight = int(screenHeight / boxSize)
 FPS = 12
-width = 51
-height = 53
+tankWidth = 51
+tankHeight = 53
 player1_sprite = 'Tank_Turret.png'
 player2_sprite = 'Red_Tank_Turret.png'
 item_sprites = [pygame.image.load("item1.png"), pygame.image.load("item2.png"), pygame.image.load("item3.png"),
@@ -26,10 +26,13 @@ item_sprites = [pygame.image.load("item1.png"), pygame.image.load("item2.png"), 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+LIGHT_RED = (200, 0, 0)
 GREEN = (0, 255, 0)
+LIGHT_GREEN = (0, 200, 0)
+DARK_GREEN = (0, 155, 0)
 BLUE = (0, 0, 255)
 
-# positions
+# tank positions
 UP = 1
 RIGHT = 2
 DOWN = 3
@@ -49,11 +52,31 @@ class Timer:
         self.start_time = pygame.time.get_ticks()
 
 
+class Button:
+    def __init__(self, message, x, y, width, height, func, color, select_color):
+        pointer = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if x + width > pointer[0] > x and y + height > pointer[1] > y:
+            pygame.draw.rect(win, color, (x, y, width, height))
+            if click[0] == 1:
+                func()
+        else:
+            pygame.draw.rect(win, select_color, (x, y, width, height))
+        t_surface, t_rect = text_objects(message, smallText)
+        t_rect.center = (x + width/2, y + height/2)
+        win.blit(t_surface, t_rect)
+
+
+def text_objects(text, font):
+    t_surface = font.render(text, True, WHITE)
+    return t_surface, t_surface.get_rect()
+
+
 # reference: https://www.pygame.org/project-Rect+Collision+Response-1061-.html
 class Tank:
     def __init__(self, image, num):
         self.player_number = num
-        self.rect = pygame.Rect(width, width, height, height)
+        self.rect = pygame.Rect(tankWidth, tankWidth, tankHeight, tankHeight)
         self.char = pygame.image.load(image)
         self.vel = 10
         self.prev_char_pos = UP
@@ -82,6 +105,18 @@ class Tank:
                 if y < 0:
                     self.rect.top = wall.rect.bottom
 
+        # check for wall collision
+        for box in boxes:
+            if self.rect.colliderect(box.rect):
+                if x > 0:
+                    self.rect.right = box.rect.left
+                if x < 0:
+                    self.rect.left = box.rect.right
+                if y > 0:
+                    self.rect.bottom = box.rect.top
+                if y < 0:
+                    self.rect.top = box.rect.bottom
+
         # check player collision
         check_player = player2
         if self.player_number == 2:
@@ -107,6 +142,7 @@ class Tank:
 
         self.power_up_handler()
 
+    # times out power up and reset tank to default value
     def power_up_handler(self):
         if self.speed_up is True:
             if self.timers[0].time_diff() == 5:
@@ -177,6 +213,7 @@ class Item:
         self.cool_down = 5
 
     def draw_item(self):
+        # draw item if it is set to spawn or when certain time has past
         if self.timer.time_diff() == self.cool_down or self.spawned is True:
             pygame.draw.rect(win, WHITE, self.rect)
             win.blit(self.sprite, (self.rect.x + 4, self.rect.y + 1))
@@ -189,83 +226,178 @@ class Item:
         self.spawned = False
         self.cool_down = random.randint(5, 15)
 
+
 class Wall:
     def __init__(self, pos):
         walls.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], boxSize, boxSize)
 
 
+class Box:
+    def __init__(self, pos):
+        boxes.append(self)
+        self.rect = pygame.Rect(pos[0], pos[1], boxSize, boxSize)
+        self.hit_point = 2
+
+    def draw_box(self):
+        if self.hit_point == 0:
+            boxes.remove(self)
+        elif self.hit_point == 1:
+            pygame.draw.rect(win, GREEN, self.rect)
+        elif self.hit_point == 2:
+            pygame.draw.rect(win, DARK_GREEN, self.rect)
+
+
 # set background here
 bg = pygame.image.load("background.jpg")
 
 walls = []
+boxes = []
 items = []
 player1 = Tank(player1_sprite, 1)
 player2 = Tank(player2_sprite, 2)
 fpsClock = pygame.time.Clock()
 
-level = [
+level = []
+
+level1 = [
+    "WWWWWWWWWWWW",
+    "W          W",
+    "W       W  W",
+    "W       W 2W",
+    "W1 W       W",
+    "W  W       W",
+    "W          W",
+    "WWWWWWWWWWWW"
+]
+
+level2 = [
     "WWWWWWWWWWWWWWW",
     "W             W",
     "W             W",
-    "W             W",
-    "W1     I     2W",
-    "W             W",
-    "W             W",
+    "W    W   W    W",
+    "W1    I I     W",
+    "W      I     2W",
+    "W    W   W    W",
     "W             W",
     "W             W",
     "WWWWWWWWWWWWWWW"
 ]
 
-
+level3 = [
+    "WWWWWWWWWWWWWWW",
+    "W    B   B    W",
+    "W  B  B B  B  W",
+    "W    B   B    W",
+    "W1 B  B B  B  W",
+    "W    B   B   2W",
+    "W  B  B B  B  W",
+    "W    B   B    W",
+    "W  B  B B  B  W",
+    "WWWWWWWWWWWWWWW"
+]
 def main():
-    setup_level()
     game_intro()
+    terminate()
+
+
+def start_game():
+    setup_level()
     main_loop()
     terminate()
+
+
+def game_intro():
+    intro = True
+    while intro:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                intro = False
+        win.fill(BLUE)
+        t_surface, t_rect = text_objects("Tank Game", largeText)
+        t_rect.center = ((screenWidth/2), (screenHeight/2))
+        win.blit(t_surface, t_rect)
+        # create buttons
+        Button("START", 165, 400, 200, 100, select_level, RED, LIGHT_RED)
+        Button("QUIT", 550, 400, 200, 100, terminate, GREEN, LIGHT_GREEN)
+
+        pygame.display.update()
+        fpsClock.tick(FPS)
+
+
+def select_level():
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
+        win.fill(BLUE)
+        t_surface, t_rect = text_objects("Select A Level", largeText)
+        t_rect.center = ((screenWidth/2), (screenHeight/2 - 100))
+        win.blit(t_surface, t_rect)
+        # create buttons
+        Button("Level One", 165, 300, 200, 100, setup_level_one, GREEN, LIGHT_GREEN)
+        Button("Level Two", 550, 300, 200, 100, setup_level_two, GREEN, LIGHT_GREEN)
+        Button("Level Three", 356, 450, 200, 100, setup_level_three, GREEN, LIGHT_GREEN)
+
+        pygame.display.update()
+        fpsClock.tick(FPS)
+
+
+def setup_level_one():
+    global boxSize, level, level1
+    boxSize = 75
+    level = level1
+    start_game()
+
+
+def setup_level_two():
+    global boxSize, level, level2
+    boxSize = 60
+    level = level2
+    start_game()
+
+
+def setup_level_three():
+    global boxSize, level, level3
+    boxSize = 60
+    level = level3
+    start_game()
 
 
 def setup_level():
     x = y = 0
     for row in level:
         for col in row:
+            # setup walls
             if col == "W":
                 Wall((x, y))
+            # setup player 1
             if col == "1":
                 player1.rect.x = x
                 player1.rect.y = y
+            # setup player 2
             if col == "2":
                 player2.rect.x = x
                 player2.rect.y = y
+            # setup items
             if col == "I":
                 Item((x, y))
+            if col == "B":
+                Box((x, y))
             x += boxSize
         y += boxSize
         x = 0
 
 
 def terminate():
+    pygame.display.quit()
     pygame.quit()
     sys.exit()
-
-
-def game_intro():
-    intro = True
-
-    while intro:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-        win.fill(BLUE)
-        t_surface, t_rect = text_objects("Tank Game", largeText)
-        t_rect.center = ((screenWidth/2), (screenHeight/2))
-        win.blit(t_surface, t_rect)
-
-        green_button("START", 165, 400, 200, 100)
-        red_button("QUIT", 550, 400, 200, 100)
-
-        pygame.display.update()
-        fpsClock.tick(FPS)
 
 
 def main_loop():
@@ -274,7 +406,7 @@ def main_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 running = False
 
         keys = pygame.key.get_pressed()
@@ -312,50 +444,17 @@ def main_loop():
         # draw walls
         for wall in walls:
             pygame.draw.rect(win, RED, wall.rect)
+        for box in boxes:
+            box.draw_box()
         # draw player
         player1.draw_tank()
         player2.draw_tank()
-
         # draw item
         for item in items:
             item.draw_item()
 
         pygame.display.update()
         fpsClock.tick(FPS)
-
-
-def text_objects(text, font):
-    t_surface = font.render(text, True, WHITE)
-    return t_surface, t_surface.get_rect()
-
-
-def green_button(message, x, y, width, height):
-    pointer = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    if x + width > pointer[0] > x and y + height > pointer[1] > y:
-        pygame.draw.rect(win, GREEN, (x, y, width, height))
-        if click[0] == 1:
-            main_loop()
-            pygame.quit()
-    else:
-        pygame.draw.rect(win, (0, 200, 0), (x, y, width, height))
-    t_surface, t_rect = text_objects(message, smallText)
-    t_rect.center = (x + width/2, y + height/2)
-    win.blit(t_surface, t_rect)
-
-
-def red_button(message, x, y, width, height):
-    pointer = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    if x + width > pointer[0] > x and y + height > pointer[1] > y:
-        pygame.draw.rect(win, RED, (x, y, width, height))
-        if click[0] == 1:
-            pygame.quit()
-    else:
-        pygame.draw.rect(win, (200, 0, 0), (x, y, width, height))
-    t_surface, t_rect = text_objects(message, smallText)
-    t_rect.center = (x + width/2, y + height/2)
-    win.blit(t_surface, t_rect)
 
 
 def draw_grid():
