@@ -296,6 +296,8 @@ level3 = [
     "W  B  B B  B  W",
     "WWWWWWWWWWWWWWW"
 ]
+
+
 def main():
     game_intro()
     terminate()
