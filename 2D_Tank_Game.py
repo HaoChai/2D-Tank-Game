@@ -199,6 +199,25 @@ class Tank:
         pygame.draw.rect(win, WHITE, self.rect)
         win.blit(self.char, (self.rect.centerx - 25, self.rect.centery - 25))
 
+    def shoot(self):
+        bullet = Bullet("Bullet.png",self.rect.x,self.rect.y,self.cur_char_pos)
+        all_sprites.add(bullet)
+        bullets.add(bullet)
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__ (self,look,tank_x,tank_y,direct):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(look)
+        self.speed = 10
+        self.rect = self.image.get_rect()
+        self.rect.bottom = tank_y
+        self.rect.centerx = tank_x
+        self.direction = direct
+    def update(self):
+        self.rect.y += self.speed
+
+all_sprites = pygame.sprite.Group()
+bullets = pygame.sprite.Group()
 
 class Item:
     def __init__(self, pos):
@@ -411,6 +430,8 @@ def main_loop():
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 running = False
 
+        all_sprites.update()
+
         keys = pygame.key.get_pressed()
 
         # First Player Programming
@@ -424,6 +445,9 @@ def main_loop():
         if keys[pygame.K_s]:
             player1.move_down()
 
+        if keys[pygame.K_q]:
+            player1.shoot()
+
         # second player programming
         if keys[pygame.K_LEFT]:
             player2.rotate_left()
@@ -434,6 +458,9 @@ def main_loop():
             player2.move_up()
         if keys[pygame.K_DOWN]:
             player2.move_down()
+
+        if keys[pygame.K_SPACE]:
+            player2.shoot()
         # end second player programming
 
         # get rid of win.fill when background line is added
@@ -454,6 +481,8 @@ def main_loop():
         # draw item
         for item in items:
             item.draw_item()
+
+        all_sprites.draw(win)
 
         pygame.display.update()
         fpsClock.tick(FPS)
