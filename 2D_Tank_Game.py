@@ -208,13 +208,19 @@ class Bullet(pygame.sprite.Sprite):
     def __init__ (self,look,tank_x,tank_y,direct):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(look)
-        self.speed = 10
         self.rect = self.image.get_rect()
         self.rect.bottom = tank_y
         self.rect.centerx = tank_x
         self.direction = direct
     def update(self):
-        self.rect.y += self.speed
+        if self.direction == DOWN:
+            self.rect.y += 10
+        elif self.direction == UP:
+            self.rect.y += -10
+        elif self.direction == LEFT:
+            self.rect.x += -10
+        elif self.direction == RIGHT:
+            self.rect.x += 10
 
 all_sprites = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
