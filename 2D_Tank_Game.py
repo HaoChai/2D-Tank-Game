@@ -200,30 +200,51 @@ class Tank:
         win.blit(self.char, (self.rect.centerx - 25, self.rect.centery - 25))
 
     def shoot(self):
-        bullet = Bullet("Bullet.png",self.rect.x,self.rect.y,self.cur_char_pos)
+        bullet = Bullet("Bullet.png", self.rect.x, self.rect.y, self.cur_char_pos)
         all_sprites.add(bullet)
         bullets.add(bullet)
+        pygame.time.delay(150)
+
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__ (self,look,tank_x,tank_y,direct):
+    def __init__(self, look, tank_x, tank_y, direct):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(look)
         self.rect = self.image.get_rect()
         self.rect.bottom = tank_y
         self.rect.centerx = tank_x
         self.direction = direct
+        self.speed = 11
+
     def update(self):
         if self.direction == DOWN:
-            self.rect.y += 10
+            self.rect.y += self.speed
+            if self.rect.y <= 0:
+                self.kill()
         elif self.direction == UP:
-            self.rect.y += -10
+            self.rect.y += -self.speed
+            if self.rect.y >= screenHeight:
+                self.kill()
         elif self.direction == LEFT:
-            self.rect.x += -10
+            self.rect.x += -self.speed
+            if self.rect.x <= 0:
+                self.kill()
         elif self.direction == RIGHT:
-            self.rect.x += 10
+            self.rect.x += self.speed
+            if self.rect.y >= screenWidth:
+                self.kill()
+        # check for wall collision
+        for wall in walls:
+            if self.rect.colliderect(wall.rect):
+                self.kill()
+        for box in boxes:
+            if self.rect.colliderect(box.rect):
+                self.kill()
+
 
 all_sprites = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
+
 
 class Item:
     def __init__(self, pos):
