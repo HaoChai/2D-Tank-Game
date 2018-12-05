@@ -72,7 +72,6 @@ def text_objects(text, font):
     return t_surface, t_surface.get_rect()
 
 
-# reference: https://www.pygame.org/project-Rect+Collision+Response-1061-.html
 class Tank:
     def __init__(self, image, num):
         self.player_number = num
@@ -200,45 +199,43 @@ class Tank:
         win.blit(self.char, (self.rect.centerx - 25, self.rect.centery - 25))
 
     def shoot(self):
-        bullet = Bullet("Bullet.png", self.rect.x, self.rect.y, self.cur_char_pos)
+        bullet = Bullet("Bullet.png", self.rect.centerx, self.rect.centery, self.cur_char_pos, self.player_number)
         all_sprites.add(bullet)
         bullets.add(bullet)
-        pygame.time.delay(150)
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, look, tank_x, tank_y, direct):
+    def __init__(self, look, tank_x, tank_y, direct, player_num):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(look)
         self.rect = self.image.get_rect()
         self.rect.bottom = tank_y
         self.rect.centerx = tank_x
         self.direction = direct
-        self.speed = 11
+        self.speed = 15
+        self.playernum = player_num
 
     def update(self):
         if self.direction == DOWN:
             self.rect.y += self.speed
-            if self.rect.y <= 0:
-                self.kill()
         elif self.direction == UP:
             self.rect.y += -self.speed
-            if self.rect.y >= screenHeight:
-                self.kill()
         elif self.direction == LEFT:
             self.rect.x += -self.speed
-            if self.rect.x <= 0:
-                self.kill()
         elif self.direction == RIGHT:
             self.rect.x += self.speed
-            if self.rect.y >= screenWidth:
-                self.kill()
         # check for wall collision
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.kill()
         for box in boxes:
             if self.rect.colliderect(box.rect):
+                self.kill()
+        if self.playernum == 1:
+            if self.rect.colliderect(player2.rect):
+                self.kill()
+        elif self.playernum == 2:
+            if self.rect.colliderect(player1.rect):
                 self.kill()
 
 
@@ -508,6 +505,8 @@ def main_loop():
         # draw item
         for item in items:
             item.draw_item()
+
+
 
         all_sprites.draw(win)
 
