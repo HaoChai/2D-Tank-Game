@@ -82,6 +82,7 @@ class Tank:
         self.cur_char_pos = UP
         self.timers = [Timer(), Timer(), Timer(), Timer(), Timer()]
         self.speed_up = False
+        self.score = 0
 
     def move(self, x, y):
         if x != 0:
@@ -203,6 +204,14 @@ class Tank:
         all_sprites.add(bullet)
         bullets.add(bullet)
 
+    def respawn(self):
+        if self.player_number == 1:
+            player2.score += 1
+        else:
+            player1.score += 1
+        self.rect.centerx = 450
+        self.rect.centery = 300
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, look, tank_x, tank_y, direct, player_num):
@@ -231,12 +240,16 @@ class Bullet(pygame.sprite.Sprite):
         for box in boxes:
             if self.rect.colliderect(box.rect):
                 self.kill()
+
+        # check for player collision
         if self.playernum == 1:
             if self.rect.colliderect(player2.rect):
                 self.kill()
+                player2.respawn()
         elif self.playernum == 2:
             if self.rect.colliderect(player1.rect):
                 self.kill()
+                player1.respawn()
 
 
 all_sprites = pygame.sprite.Group()
@@ -505,8 +518,6 @@ def main_loop():
         # draw item
         for item in items:
             item.draw_item()
-
-
 
         all_sprites.draw(win)
 
