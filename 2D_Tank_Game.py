@@ -207,10 +207,16 @@ class Tank:
     def respawn(self):
         if self.player_number == 1:
             player2.score += 1
+            self.rect.centerx = 170
+            self.rect.centery = 350
+            player2.rect.centerx = 750
+            player2.rect.centery = 250
         else:
             player1.score += 1
-        self.rect.centerx = 450
-        self.rect.centery = 300
+            self.rect.centerx = 750
+            self.rect.centery = 250
+            player1.rect.centerx = 170
+            player1.rect.centery = 350
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -221,7 +227,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.bottom = tank_y
         self.rect.centerx = tank_x
         self.direction = direct
-        self.speed = 15
+        self.speed = 20
         self.playernum = player_num
 
     def update(self):
@@ -518,6 +524,11 @@ def main_loop():
         # draw item
         for item in items:
             item.draw_item()
+
+        if player1.score == 1:
+            pygame.display.set_caption("Game Over")
+        elif player2.score == 1:
+            pygame.display.set_caption("Game Over")
 
         all_sprites.draw(win)
 
