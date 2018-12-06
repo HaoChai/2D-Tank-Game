@@ -19,6 +19,7 @@ tankWidth = 51
 tankHeight = 53
 player1_sprite = 'Tank_Turret.png'
 player2_sprite = 'Red_Tank_Turret.png'
+winning_score = 3
 item_sprites = [pygame.image.load("item1.png"), pygame.image.load("item2.png"), pygame.image.load("item3.png"),
                 pygame.image.load("item4.png"), pygame.image.load("item5.png")]
 
@@ -202,7 +203,8 @@ class Tank:
     def shoot(self):
         bullet = Bullet("Bullet.png", self.rect.centerx, self.rect.centery, self.cur_char_pos, self.player_number)
         all_sprites.add(bullet)
-        bullets.add(bullet)
+        if len(all_sprites) <= 1:
+            bullets.add(bullet)
 
     def respawn(self):
         if self.player_number == 1:
@@ -369,6 +371,7 @@ def main():
 def start_game():
     setup_level()
     main_loop()
+    game_over()
     terminate()
 
 
@@ -392,6 +395,34 @@ def game_intro():
         fpsClock.tick(FPS)
 
 
+def game_over():
+    over = True
+    while over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                over = False
+
+        if player1.score == winning_score:
+            win.fill(GREEN)
+            t_surface, t_rect = text_objects("Player 1 wins", largeText)
+        elif player2.score == winning_score:
+            win.fill(RED)
+            t_surface, t_rect = text_objects("Player 2 wins", largeText)
+
+        player1.score = 0
+        player2.score = 0
+        t_rect.center = ((screenWidth / 2), (screenHeight / 2 - 100))
+        win.blit(t_surface, t_rect)
+        # create buttons
+        Button("Play Again", 165, 400, 200, 100, game_intro, BLUE, LIGHT_GREEN)
+        Button("Quit", 550, 400, 200, 100, terminate, BLUE, LIGHT_RED)
+
+        pygame.display.update()
+        fpsClock.tick(FPS)
+
+
 def select_level():
     running = True
     while running:
@@ -402,8 +433,11 @@ def select_level():
                 running = False
         win.fill(BLUE)
         t_surface, t_rect = text_objects("Select A Level", largeText)
+        _surface, _rect = text_objects("First to 3 kills wins!", smallText)
         t_rect.center = ((screenWidth/2), (screenHeight/2 - 100))
+        _rect.center = ((screenWidth/2), (screenHeight/2 - 200))
         win.blit(t_surface, t_rect)
+        win.blit(_surface, _rect)
         # create buttons
         Button("Level One", 165, 300, 200, 100, setup_level_one, GREEN, LIGHT_GREEN)
         Button("Level Two", 550, 300, 200, 100, setup_level_two, GREEN, LIGHT_GREEN)
@@ -526,10 +560,8 @@ def main_loop():
         for item in items:
             item.draw_item()
 
-        if player1.score == 3:
-            pygame.display.set_caption("Game Over")
-        elif player2.score == 3:
-            pygame.display.set_caption("Game Over")
+        if player1.score == winning_score or player2.score == winning_score:
+            running = False
 
         all_sprites.draw(win)
 
