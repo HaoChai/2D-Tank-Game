@@ -620,7 +620,7 @@ def main_loop():
             box.draw_box()
 
         # back button
-        # Button("QUIT", 700, 540, 150, 50, game_intro(), RED, LIGHT_RED)
+        # Button("QUIT", 700, 540, 150, 50, game_intro, RED, LIGHT_RED)
 
         # draw player
         player1.draw_tank()
