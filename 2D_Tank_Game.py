@@ -20,7 +20,7 @@ tankWidth = 51
 tankHeight = 53
 player1_sprite = 'Tank_Turret.png'
 player2_sprite = 'Red_Tank_Turret.png'
-winning_score = 3
+winning_score = 1
 item_sprites = [pygame.image.load("item1.png"), pygame.image.load("item2.png"), pygame.image.load("item3.png"),
                 pygame.image.load("item4.png"), pygame.image.load("item5.png")]
 
@@ -443,7 +443,7 @@ def select_level():
                 running = False
         win.fill(BLUE)
         t_surface, t_rect = text_objects("Select A Level", largeText)
-        _surface, _rect = text_objects("First to 3 kills wins!", smallText)
+        _surface, _rect = text_objects("First to 1 kill wins!", smallText)
         t_rect.center = ((screenWidth/2), (screenHeight/2 - 100))
         _rect.center = ((screenWidth/2), (screenHeight/2 - 200))
         win.blit(t_surface, t_rect)
