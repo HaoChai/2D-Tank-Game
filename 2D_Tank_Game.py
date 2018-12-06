@@ -7,6 +7,7 @@ screenWidth = 900
 screenHeight = 600
 largeText = pygame.font.Font('freesansbold.ttf', 115)
 smallText = pygame.font.Font("freesansbold.ttf", 20)
+
 win = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("2D Tank Game")
 boxSize = 60
@@ -201,12 +202,21 @@ class Tank:
         win.blit(self.char, (self.rect.centerx - 25, self.rect.centery - 25))
 
     def shoot(self):
-        bullet = Bullet("Bullet.png", self.rect.centerx, self.rect.centery, self.cur_char_pos, self.player_number)
+        if self.cur_char_pos == UP:
+            bullet = Bullet("BulletUp.png", self.rect.centerx, self.rect.centery, self.cur_char_pos, self.player_number)
+        elif self.cur_char_pos == RIGHT:
+            bullet = Bullet("BulletRight.png", self.rect.centerx, self.rect.centery, self.cur_char_pos, self.player_number)
+        elif self.cur_char_pos == DOWN:
+            bullet = Bullet("BulletDown.png", self.rect.centerx, self.rect.centery, self.cur_char_pos, self.player_number)
+        else:
+            bullet = Bullet("BulletLeft.png", self.rect.centerx, self.rect.centery, self.cur_char_pos, self.player_number)
+
         all_sprites.add(bullet)
         if len(all_sprites) <= 1:
             bullets.add(bullet)
 
     def respawn(self):
+        all_sprites.empty()
         if self.player_number == 1:
             player2.score += 1
             self.rect.centerx = 105
@@ -406,10 +416,10 @@ def game_over():
 
         if player1.score == winning_score:
             win.fill(GREEN)
-            t_surface, t_rect = text_objects("Player 1 wins", largeText)
+            t_surface, t_rect = text_objects("Player 1 wins!", largeText)
         elif player2.score == winning_score:
             win.fill(RED)
-            t_surface, t_rect = text_objects("Player 2 wins", largeText)
+            t_surface, t_rect = text_objects("Player 2 wins!", largeText)
 
         player1.score = 0
         player2.score = 0
