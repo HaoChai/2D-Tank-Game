@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3849ec1d-b85e-4811-a955-5319f74affd4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2D_Tank_Game.py" beforeDir="false" afterPath="$PROJECT_DIR$/2D_Tank_Game.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -50,13 +49,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/2D_Tank_Game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2264">
-              <caret line="590" lean-forward="true" selection-start-line="590" selection-end-line="590" />
+            <state relative-caret-position="358">
+              <caret line="656" lean-forward="true" selection-start-line="656" selection-end-line="656" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
-                <marker date="1544076555000" expanded="true" signature="7575:7577" ph="..." />
-                <marker date="1544076555000" expanded="true" signature="7993:7994" ph="..." />
-                <marker date="1544076555000" expanded="true" signature="12186:13127" ph="..." />
               </folding>
             </state>
           </provider>
@@ -75,7 +71,7 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="585" />
+    <option name="x" value="352" />
     <option name="y" value="23" />
     <option name="width" value="767" />
     <option name="height" value="676" />
@@ -161,7 +157,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="585" y="23" width="767" height="676" extended-state="0" />
+    <frame x="352" y="23" width="767" height="676" extended-state="0" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.0" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -197,13 +193,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/2D_Tank_Game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2264">
-          <caret line="590" lean-forward="true" selection-start-line="590" selection-end-line="590" />
+        <state relative-caret-position="358">
+          <caret line="656" lean-forward="true" selection-start-line="656" selection-end-line="656" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <marker date="1544076555000" expanded="true" signature="7575:7577" ph="..." />
-            <marker date="1544076555000" expanded="true" signature="7993:7994" ph="..." />
-            <marker date="1544076555000" expanded="true" signature="12186:13127" ph="..." />
           </folding>
         </state>
       </provider>
