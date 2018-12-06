@@ -56,8 +56,8 @@ class Scoreboard(Sprite):
         self.bg_color = BLUE
         self.text_color = BLACK
         self.font = smallText
-        self.x_score1_position, self.y_score1_position = 20.0, 12
-        self.x_score2_position, self.y_score2_position = 200, 12
+        self.x_score1_position, self.y_score1_position = 40, 12
+        self.x_score2_position, self.y_score2_position = 750, 12
 
     def setup_score(self):
         self.player1_string = "Player 1: " + str(self.score1)
