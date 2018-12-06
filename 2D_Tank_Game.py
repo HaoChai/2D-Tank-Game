@@ -30,6 +30,7 @@ BLACK = (0, 0, 0)
 GRAY = (150, 150, 150)
 LIGHT_GRAY = (180, 180, 180)
 WHITE = (255, 255, 255)
+WHITE_B = (255, 255, 255, 255)
 RED = (255, 0, 0)
 LIGHT_RED = (200, 0, 0)
 GREEN = (0, 255, 0)
@@ -244,7 +245,7 @@ class Tank:
             self.move(self.vel, 0)
 
     def draw_tank(self):
-        pygame.draw.rect(win, WHITE, self.rect)
+        pygame.draw.rect(win, WHITE_B, self.rect)
         win.blit(self.char, (self.rect.centerx - 25, self.rect.centery - 25))
 
     def shoot(self):
@@ -465,12 +466,11 @@ def game_over():
         win.fill(BLUE)
         str = ""
         if player1.score == winning_score:
-            win.fill(GREEN)
             str = "Player 1 wins!"
         elif player2.score == winning_score:
-            win.fill(RED)
             str = "Player 2 wins!"
 
+        pygame.time.delay(200)
         t_surface, t_rect = text_objects(str, largeText)
         player1.score = 0
         player2.score = 0
@@ -478,8 +478,8 @@ def game_over():
         t_rect.center = ((screenWidth / 2), (screenHeight / 2 - 100))
         win.blit(t_surface, t_rect)
         # create buttons
-        Button("Play Again", 165, 400, 200, 100, game_intro, BLUE, LIGHT_RED)
-        Button("Quit", 550, 400, 200, 100, terminate, BLUE, LIGHT_RED)
+        Button("Play Again", 165, 400, 200, 100, game_intro, LIGHT_RED, RED)
+        Button("Quit", 550, 400, 200, 100, terminate, LIGHT_RED, RED)
 
         pygame.display.update()
         fpsClock.tick(FPS)
