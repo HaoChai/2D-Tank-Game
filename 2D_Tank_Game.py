@@ -27,6 +27,8 @@ item_sprites = [pygame.image.load("item1.png"), pygame.image.load("item2.png"), 
 
 # colors
 BLACK = (0, 0, 0)
+GRAY = (150, 150, 150)
+LIGHT_GRAY = (180, 180, 180)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 LIGHT_RED = (200, 0, 0)
@@ -45,7 +47,7 @@ LEFT = 4
 class Scoreboard(Sprite):
     def __init__(self, win, sb_height):
         Sprite.__init__(self)
-        self.win = win;
+        self.win = win
         self.score1 = 0
         self.score2 = 0
 
@@ -69,7 +71,7 @@ class Scoreboard(Sprite):
 
         self.win.fill(self.bg_color, self.rect)
 
-        #draw separate scores for each player
+        # draw separate scores for each player
         self.win.blit(self.player1_img, (self.x_score1_position, self.y_score1_position))
         self.win.blit(self.player2_img, (self.x_score2_position, self.y_score2_position))
 
@@ -251,7 +253,6 @@ class Tank:
         if len(all_sprites) <= 1:
             bullets.add(bullet)
 
-
     def respawn(self):
         all_sprites.empty()
         if self.player_number == 1:
@@ -357,9 +358,10 @@ class Box:
         if self.hit_point == 0:
             boxes.remove(self)
         elif self.hit_point == 1:
-            pygame.draw.rect(win, GREEN, self.rect)
+            pygame.draw.rect(win, GRAY, self.rect)
         elif self.hit_point == 2:
-            pygame.draw.rect(win, DARK_GREEN, self.rect)
+            pygame.draw.rect(win, LIGHT_GRAY, self.rect)
+
 
 class Button:
     def __init__(self, message, x, y, width, height, func, color, select_color):
@@ -375,8 +377,10 @@ class Button:
         t_rect.center = (x + width/2, y + height/2)
         win.blit(t_surface, t_rect)
 
+
 # set background here
 bg = pygame.image.load("background.jpg")
+
 
 walls = []
 boxes = []
@@ -477,7 +481,7 @@ def game_over():
         t_rect.center = ((screenWidth / 2), (screenHeight / 2 - 100))
         win.blit(t_surface, t_rect)
         # create buttons
-        Button("Play Again", 165, 400, 200, 100, game_intro, BLUE, LIGHT_GREEN)
+        # Button("Play Again", 165, 400, 200, 100, game_intro, BLUE, LIGHT_GREEN)
         Button("Quit", 550, 400, 200, 100, terminate, BLUE, LIGHT_RED)
 
         pygame.display.update()
@@ -615,16 +619,13 @@ def main_loop():
         for box in boxes:
             box.draw_box()
 
-        #back button 
-        Button("QUIT", 700, 540, 150, 50, select_level, RED, LIGHT_RED)
+        # back button
+        # Button("QUIT", 700, 540, 150, 50, game_intro(), RED, LIGHT_RED)
 
         # draw player
         player1.draw_tank()
         player2.draw_tank()
-        #draw scoreboard
-
-
-
+        # draw scoreboard
 
         # draw item
         for item in items:
@@ -633,10 +634,7 @@ def main_loop():
         if player1.score == winning_score or player2.score == winning_score:
             running = False
 
-
-
         all_sprites.draw(win)
-
 
         scoreboard.draw_scoreboard()
 
@@ -649,6 +647,7 @@ def draw_grid():
         pygame.draw.line(win, BLUE, (i, 0), (i, screenHeight))
     for j in range(0, screenHeight, boxSize):
         pygame.draw.line(win, BLUE, (0, j), (screenWidth, j))
+
 
 if __name__ == "__main__":
     main()
