@@ -1,6 +1,7 @@
 import random
 import sys
 import pygame
+from pygame.sprite import Sprite
 
 pygame.init()
 screenWidth = 900
@@ -40,6 +41,40 @@ RIGHT = 2
 DOWN = 3
 LEFT = 4
 
+
+class Scoreboard(Sprite):
+    def __init__(self, win, sb_height):
+        Sprite.__init__(self)
+        self.win = win;
+        self.score1 = 0
+        self.score2 = 0
+
+        self.sb_height, self.sb_width = sb_height, self.win.get_width()
+        self.rect = pygame.Rect(0,0, self.sb_width, self.sb_height)
+        self.bg_color = BLUE
+        self.text_color = BLACK
+        self.font = smallText
+        self.x_score1_position, self.y_score1_position = 20.0, 12
+        self.x_score2_position, self.y_score2_position = 200, 12
+
+    def setup_score(self):
+        self.player1_string = "Player 1: " + str(self.score1)
+        self.player2_string = "Player 2: " + str(self.score2)
+
+        self.player1_img = self.font.render(self.player1_string, True, self.text_color)
+        self.player2_img = self.font.render(self.player2_string, True, self.text_color)
+
+    def draw_scoreboard(self):
+        self.setup_score()
+
+        self.win.fill(self.bg_color, self.rect)
+
+        #draw separate scores for each player
+        self.win.blit(self.player1_img, (self.x_score1_position, self.y_score1_position))
+        self.win.blit(self.player2_img, (self.x_score2_position, self.y_score2_position))
+
+
+scoreboard = Scoreboard(win, 50)
 
 class Timer:
     def __init__(self):
@@ -215,16 +250,19 @@ class Tank:
         if len(all_sprites) <= 1:
             bullets.add(bullet)
 
+
     def respawn(self):
         all_sprites.empty()
         if self.player_number == 1:
             player2.score += 1
+            scoreboard.score2 += 1
             self.rect.centerx = 105
             self.rect.centery = 350
             player2.rect.centerx = 740
             player2.rect.centery = 250
         else:
             player1.score += 1
+            scoreboard.score1 += 1
             self.rect.centerx = 740
             self.rect.centery = 250
             player1.rect.centerx = 105
@@ -322,6 +360,22 @@ class Box:
         elif self.hit_point == 2:
             pygame.draw.rect(win, DARK_GREEN, self.rect)
 
+class Button:
+    def __init__(self, message, x, y, width, height, func, color, select_color):
+        pointer = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if x + width > pointer[0] > x and y + height > pointer[1] > y:
+            pygame.draw.rect(win, color, (x, y, width, height))
+            if click[0] == 1:
+                func()
+        else:
+            pygame.draw.rect(win, select_color, (x, y, width, height))
+        t_surface, t_rect = text_objects(message, smallText)
+        t_rect.center = (x + width/2, y + height/2)
+        win.blit(t_surface, t_rect)
+
+
+        
 
 # set background here
 bg = pygame.image.load("background.jpg")
@@ -332,7 +386,6 @@ items = []
 player1 = Tank(player1_sprite, 1)
 player2 = Tank(player2_sprite, 2)
 fpsClock = pygame.time.Clock()
-
 level = []
 
 level1 = [
@@ -560,12 +613,21 @@ def main_loop():
         draw_grid()
         # draw walls
         for wall in walls:
-            pygame.draw.rect(win, RED, wall.rect)
+            pygame.draw.rect(win, BLACK, wall.rect)
         for box in boxes:
             box.draw_box()
+
+        #back button 
+        Button("QUIT", 700, 540, 150, 50, select_level, RED, LIGHT_RED)
+
         # draw player
         player1.draw_tank()
         player2.draw_tank()
+        #draw scoreboard
+
+
+
+
         # draw item
         for item in items:
             item.draw_item()
@@ -573,7 +635,12 @@ def main_loop():
         if player1.score == winning_score or player2.score == winning_score:
             running = False
 
+
+
         all_sprites.draw(win)
+
+
+        scoreboard.draw_scoreboard()
 
         pygame.display.update()
         fpsClock.tick(FPS)
@@ -584,7 +651,6 @@ def draw_grid():
         pygame.draw.line(win, BLUE, (i, 0), (i, screenHeight))
     for j in range(0, screenHeight, boxSize):
         pygame.draw.line(win, BLUE, (0, j), (screenWidth, j))
-
 
 if __name__ == "__main__":
     main()
