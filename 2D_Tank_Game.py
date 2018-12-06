@@ -45,19 +45,23 @@ LEFT = 4
 
 
 class Scoreboard(Sprite):
-    def __init__(self, win, sb_height):
+    def __init__(self, sb_height):
         Sprite.__init__(self)
         self.win = win
         self.score1 = 0
         self.score2 = 0
 
         self.sb_height, self.sb_width = sb_height, self.win.get_width()
-        self.rect = pygame.Rect(0,0, self.sb_width, self.sb_height)
+        self.rect = pygame.Rect(0, 0, self.sb_width, self.sb_height)
         self.bg_color = BLUE
         self.text_color = BLACK
         self.font = smallText
         self.x_score1_position, self.y_score1_position = 40, 12
         self.x_score2_position, self.y_score2_position = 750, 12
+        self.player1_string = "Player 1: " + str(self.score1)
+        self.player2_string = "Player 2: " + str(self.score2)
+        self.player1_img = self.font.render(self.player1_string, True, self.text_color)
+        self.player2_img = self.font.render(self.player2_string, True, self.text_color)
 
     def setup_score(self):
         self.player1_string = "Player 1: " + str(self.score1)
@@ -69,14 +73,18 @@ class Scoreboard(Sprite):
     def draw_scoreboard(self):
         self.setup_score()
 
-        self.win.fill(self.bg_color, self.rect)
+        win.fill(self.bg_color, self.rect)
 
         # draw separate scores for each player
-        self.win.blit(self.player1_img, (self.x_score1_position, self.y_score1_position))
-        self.win.blit(self.player2_img, (self.x_score2_position, self.y_score2_position))
+        win.blit(self.player1_img, (self.x_score1_position, self.y_score1_position))
+        win.blit(self.player2_img, (self.x_score2_position, self.y_score2_position))
+
+    def reset_score(self):
+        self.score1 = 0
+        self.score2 = 0
 
 
-scoreboard = Scoreboard(win, 50)
+scoreboard = Scoreboard(50)
 
 
 class Timer:
@@ -363,21 +371,6 @@ class Box:
             pygame.draw.rect(win, LIGHT_GRAY, self.rect)
 
 
-class Button:
-    def __init__(self, message, x, y, width, height, func, color, select_color):
-        pointer = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
-        if x + width > pointer[0] > x and y + height > pointer[1] > y:
-            pygame.draw.rect(win, color, (x, y, width, height))
-            if click[0] == 1:
-                func()
-        else:
-            pygame.draw.rect(win, select_color, (x, y, width, height))
-        t_surface, t_rect = text_objects(message, smallText)
-        t_rect.center = (x + width/2, y + height/2)
-        win.blit(t_surface, t_rect)
-
-
 # set background here
 bg = pygame.image.load("background.jpg")
 
@@ -469,19 +462,23 @@ def game_over():
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 over = False
 
+        win.fill(BLUE)
+        str = ""
         if player1.score == winning_score:
             win.fill(GREEN)
-            t_surface, t_rect = text_objects("Player 1 wins!", largeText)
+            str = "Player 1 wins!"
         elif player2.score == winning_score:
             win.fill(RED)
-            t_surface, t_rect = text_objects("Player 2 wins!", largeText)
+            str = "Player 2 wins!"
 
+        t_surface, t_rect = text_objects(str, largeText)
         player1.score = 0
         player2.score = 0
+        scoreboard.reset_score()
         t_rect.center = ((screenWidth / 2), (screenHeight / 2 - 100))
         win.blit(t_surface, t_rect)
         # create buttons
-        # Button("Play Again", 165, 400, 200, 100, game_intro, BLUE, LIGHT_GREEN)
+        Button("Play Again", 165, 400, 200, 100, game_intro, BLUE, LIGHT_RED)
         Button("Quit", 550, 400, 200, 100, terminate, BLUE, LIGHT_RED)
 
         pygame.display.update()
@@ -625,7 +622,6 @@ def main_loop():
         # draw player
         player1.draw_tank()
         player2.draw_tank()
-        # draw scoreboard
 
         # draw item
         for item in items:
@@ -634,6 +630,7 @@ def main_loop():
         if player1.score == winning_score or player2.score == winning_score:
             running = False
 
+        # draw scoreboard
         all_sprites.draw(win)
 
         scoreboard.draw_scoreboard()
