@@ -24,7 +24,7 @@ player2_sprite = 'Red_Tank_Turret.png'
 winning_score = 3
 item_sprites = [pygame.image.load("item1.png"), pygame.image.load("item2.png"), pygame.image.load("item3.png"),
                 pygame.image.load("item4.png"), pygame.image.load("item5.png")]
-
+# power up 2 - 5 don't do anything
 # colors
 BLACK = (0, 0, 0)
 GRAY = (150, 150, 150)
